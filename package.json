@@ -1,0 +1,28 @@
+{
+  "name": "quest-maker",
+  "version": "1.0.0",
+  "description": "a heroquest AI project to tests and help with quests development",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pipobizelli/quest-test.git"
+  },
+  "keywords": [
+    "heroquest",
+    "quest",
+    "AI",
+    "test"
+  ],
+  "author": "Pipo Bizelli",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pipobizelli/quest-test/issues"
+  },
+  "homepage": "https://github.com/pipobizelli/quest-test#readme",
+  "dependencies": {
+    "vue": "^2.5.17"
+  }
+}
