@@ -1,5 +1,5 @@
 {
-  "name": "quest-maker",
+  "name": "quest-manager",
   "version": "1.0.0",
   "description": "a heroquest AI project to tests and help with quests development",
   "main": "index.js",
