@@ -1,0 +1,33 @@
+$b12_columns: (
+  columns: 36,
+  gutter: 0px,
+  media: 1220px,
+  color: rgba(#00d4ff, 0.25),
+  direction: ltr,
+);
+
+$b9_columns: (
+  columns: 36,
+  gutter: 0px,
+  media: 920px,
+  color: rgba(#00d4ff, 0.25),
+  direction: ltr,
+);
+
+$b6_columns: (
+  columns: 36,
+  gutter: 0px,
+  media: 620px,
+  color: rgba(#00d4ff, 0.25),
+  direction: ltr,
+);
+
+$b3_columns: (
+  columns: 36,
+  gutter: 0px,
+  media: 320px,
+  color: rgba(#00d4ff, 0.25),
+  direction: ltr,
+);
+
+$neat-grid: $b12_columns;

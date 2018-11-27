@@ -1,31 +1,17 @@
 var path = require('path')
 // var UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
+var CopyWebpackPlugin = require('copy-webpack-plugin')
+var SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
 // var CompressionPlugin = require('compression-webpack-plugin')
+var smp = new SpeedMeasurePlugin()
 var neat = require('bourbon-neat').includePaths
 
 // Basic Configuration
-
 let config = {
   entry: {
-    layout: './src/assets/javascript/layout',
-    checkout_layout: './src/assets/javascript/checkout',
-    checkout_page: './src/assets/javascript/pages/checkout/checkout.js',
-    product: './src/assets/javascript/pages/product/product.js',
-    account: './src/assets/javascript/pages/account/account.js',
-    activate: './src/assets/javascript/pages/activate/activate.js',
-    login: './src/assets/javascript/pages/login/login.js',
-    // login_modal: './src/assets/javascript/pages/login_modal/login_modal.js',
-    register: './src/assets/javascript/pages/register/register.js',
-    stock_problem: './src/assets/javascript/pages/stock_problem/stock_problem.js',
-    checkout_success: './src/assets/javascript/pages/checkout_success/checkout_success.js',
-    history: './src/assets/javascript/pages/history/history.js',
-    xmas: './src/assets/javascript/pages/xmas/xmas.js',
-    landing: './src/assets/javascript/pages/landing/landing.js',
-    // collection2: './src/assets/javascript/pages/collection2/collection2.js',
-    collection3: './src/assets/javascript/pages/collection3/collection3.js',
-    search: './src/assets/javascript/pages/search/search.js',
-    vue: './assets/javascript/vue',
+    main: './src/assets/javascript/main.js',
+    // vue: './src/assets/javascript/vue',
     vendor: [
       'jquery',
       'vue',
@@ -36,15 +22,14 @@ let config = {
     alias: {
       'scss-loader': 'sass-loader',
       'vue$': 'vue/dist/vue.esm.js',
-      // 'fonts': path.resolve(__dirname, 'src/assets/stylesheet/fonts'),
-      'styles': path.resolve(__dirname, 'assets/stylesheet'),
-      '@root': path.resolve(__dirname, 'assets/javascript'),
-      '@vendor': path.resolve(__dirname, 'assets/javascript/vendor')
+      'styles': path.resolve(__dirname, 'src/assets/stylesheet'),
+      '@root': path.resolve(__dirname, 'src/assets/javascript')
+      // '@vendor': path.resolve(__dirname, 'src/assets/javascript/vendor')
     }
   },
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, 'source')
+    path: path.resolve(__dirname, 'dist/assets')
   },
   module: { rules: [] },
   plugins: [],
@@ -52,6 +37,12 @@ let config = {
 }
 
 // Plugins
+config.plugins.push(
+  new CopyWebpackPlugin([
+    { from: './src/layout', to: '../', debug: 'info' }
+  ])
+)
+
 config.plugins.push(
   new ExtractTextPlugin({
     filename: '[name].css',
@@ -143,13 +134,11 @@ config.module.rules.push({
         loader: 'sass-resources-loader',
         options: {
           resources: [
-            path.resolve(__dirname, 'src/assets/stylesheet', 'fonts/font-face.scss'),
             path.resolve(__dirname, 'src/assets/stylesheet', 'base.scss')
           ]
         }
       }
     ]
-    // publicPath: './theme/assets'
   })
 })
 
@@ -161,6 +150,4 @@ config.module.rules.push({
   }
 })
 
-module.exports = {
-  config
-}
+module.exports = smp.wrap(config)
