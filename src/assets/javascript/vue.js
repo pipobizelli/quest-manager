@@ -1,18 +1,13 @@
 import Vue from 'vue'
 import { Store } from './store'
+import Tiles from './components/tiles.vue'
 
 window.Store = Store
 
 var VueConfiguration = {
   el: '#PageContainer',
-  data () {
-    return {}
-  },
-  computed: {
-  },
   components: {
-  },
-  methods: {
+    Tiles
   }
 }
 

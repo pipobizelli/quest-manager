@@ -1,0 +1,42 @@
+.board {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+
+  > img {
+    width: 100%;
+  }
+
+  .tiles_wrapper {
+    bottom: 1.2%;
+    box-sizing: border-box;
+    position: absolute;
+    left: .6%;
+    top: .87%;
+    right: .6%;
+  }
+
+  .tile {
+    font-size: 10px;
+    width: 3.8%;
+    float: left;
+    height: 5.27%;
+    box-sizing: border-box;
+    z-index: 1;
+
+    &--larger {
+      margin-right: .15%;
+    }
+
+    &--first {
+      margin-right: 0;
+    }
+  }
+
+  .draggable {
+    background-color: blue;
+    position:absolute;
+    width: 3.8%;
+    height: 5.27%;
+  }
+}

@@ -11,13 +11,14 @@ var neat = require('bourbon-neat').includePaths
 let config = {
   entry: {
     main: './src/assets/javascript/main.js',
-    // vue: './src/assets/javascript/vue',
+    vue: './src/assets/javascript/vue',
     vendor: [
       'jquery',
       'vue',
       'vuex'
     ]
   },
+  watch: true,
   resolve: {
     alias: {
       'scss-loader': 'sass-loader',
@@ -72,7 +73,9 @@ config.module.rules.push({
   use: [
     {
       loader: 'file-loader',
-      options: {}
+      options: {
+        publicPath: './assets'
+      }
     }
   ]
 })
@@ -143,7 +146,7 @@ config.module.rules.push({
 })
 
 config.module.rules.push({
-  test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+  test: /\.(woff|woff2|eot|ttf|svg)$/,
   loader: 'url-loader',
   options: {
     limit: 10000
