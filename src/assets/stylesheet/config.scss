@@ -5,6 +5,13 @@
   max-width: 900px;
   width: 100%;
 
+  label {
+    color: gray;
+    display: block;
+    font-size: 12px;
+    margin-top: 10px;
+  }
+
   textarea {
     margin-top: 10px;
     width: 100%;

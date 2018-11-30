@@ -71,6 +71,11 @@
           border-bottom: 3px solid red;
         }
 
+        &-1011 {
+          border: 3px solid red;
+          border-right: 3px solid $gray;
+        }
+
         &-0100 {
           border: 3px solid $gray;
           border-right: 3px solid red;
@@ -96,6 +101,11 @@
           border: 3px solid $gray;
           border-top: 3px solid red;
           border-right: 3px solid red;
+        }
+
+        &-1101 {
+          border: 3px solid red;
+          border-bottom: 3px solid $gray;
         }
 
         &-0110 {

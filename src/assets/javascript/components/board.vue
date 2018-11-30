@@ -6,8 +6,6 @@
           :class="[{
               'tile--larger': (c+1)%3 === 0
             },{
-              'tile--disabled': !is_active(l, c)
-            },{
               'tile--pathconfig': showPathConfig
             }, `tileconfig-${get_tile_config({l,c})}`, 'tile']"
           :data-tile="`${l}:${c}`"
@@ -16,7 +14,8 @@
           <p v-show="showNum">
             {{l}}:{{c}}
           </p>
-          <!-- <input v-show="showPathConfig" type="text" name="config" v-model="map.config[(map.tiles.columns * l) + c]" maxlength="10"> -->
+          <input v-show="showPathConfig" type="text" name="config"
+          v-model="map.config[(map.tiles.columns * l) + c]" maxlength="10">
         </div>
       </template>
       <!-- <div v-show="!showPathConfig" class="draggable"></div>
@@ -31,8 +30,8 @@ import $ from 'jquery'
 import { EventHub } from '../event_hub'
 import interact from 'interactjs'
 import { Store } from '../store'
-import MapConfig from '../modules/map'
-// import HeroquestBoard from '../data/heroquest'
+import HeroquestBoard from '../data/heroquest'
+// import MapConfig from '../modules/map'
 import Quest from '../modules/quest'
 
 export default {
@@ -42,55 +41,114 @@ export default {
         components: Store.state.Quest.components,
         active_actor: Store.state.Quest.active_actor
       },
-      showNum: true,
-      showPathConfig: false,
+      showNum: false,
+      showPathConfig: true,
       gridWidth: 0,
       gridHeight: 0,
       map: {
         tiles: {
-          lines: Store.state.Map.lines,
-          columns: Store.state.Map.columns
+          lines: HeroquestBoard.lines,
+          columns: HeroquestBoard.columns
         },
-        config: Store.state.Map.config
-      },
-      deactivatedTiles: []
+        config: HeroquestBoard.config
+      }
     }
   },
-  // watch: {
-  //   'map.config': (val, oldVal) => {
-  //     // Store.dispatch('Map/set_tiles_config', val)
-  //     EventHub.$emit('Board/changeConfig', val)
-  //   }
-  // },
+  watch: {
+    'map.config' (val, oldVal) {
+      this.set_map_config(val)
+      EventHub.$emit('Board/changeConfig', val)
+    }
+  },
   methods: {
+    set_map_config (val) {
+      this.map.config = val
+    },
+    set_block (tiles) {
+      for (var t in tiles) {
+        var tile = this.get_tile(tiles[t])
+        var tileUp = this.get_tile_up(tile)
+        var tileDown = this.get_tile_down(tile)
+        var tileLeft = this.get_tile_left(tile)
+        var tileRight = this.get_tile_right(tile)
+
+        if (tileUp) {
+          this.change_tile_config(tileUp, 2, '1')
+        }
+
+        if (tileDown) {
+          this.change_tile_config(tileDown, 0, '1')
+        }
+
+        if (tileLeft) {
+          this.change_tile_config(tileLeft, 1, '1')
+        }
+
+        if (tileRight) {
+          this.change_tile_config(tileRight, 3, '1')
+        }
+      }
+    },
+    change_tile_config (tile, index, state) {
+      var tileConfig = this.get_tile_config(tile).split('') // 0101 -> 0111
+      tileConfig[index] = state
+      var config = this.map.config.slice(0)
+      config[(this.map.tiles.columns * tile.l) + tile.c] = tileConfig.join('')
+      this.set_map_config(config)
+    },
     set_target_position (payload) {
       var target = payload.target
       var x = $(`[data-tile='${payload.r}:${payload.c}']`)[0].offsetLeft
       var y = $(`[data-tile='${payload.r}:${payload.c}']`)[0].offsetTop
-
       target.style.webkitTransform = target.style.transform = `translate(${x}px, ${y}px)`
     },
-    is_active (l, c) {
-      return this.deactivatedTiles.indexOf(`${l}:${c}`) < 0
+    get_tile (handle) {
+      return {
+        l: handle.split(':')[0],
+        c: handle.split(':')[1]
+      }
     },
-    disable_tile (tile) {
-      this.deactivatedTiles.push(tile)
+    get_tile_up (tile) {
+      if (tile.l === '0') return false
+      return {
+        l: parseInt(tile.l) - 1,
+        c: parseInt(tile.c)
+      }
     },
-    handler (e, tile) {
-      console.log('clique direito:', tile)
-      // this.disable_tile(`${tile.l}:${tile.c}`)
-      e.preventDefault()
+    get_tile_left (tile) {
+      if (tile.c === '0') return false
+      return {
+        l: parseInt(tile.l),
+        c: parseInt(tile.c) - 1
+      }
+    },
+    get_tile_right (tile) {
+      if (parseInt(tile.c) === this.map.tiles.columns - 1) return false
+      return {
+        l: parseInt(tile.l),
+        c: parseInt(tile.c) + 1
+      }
+    },
+    get_tile_down (tile) {
+      if (parseInt(tile.l) === this.map.tiles.lines - 1) return false
+      return {
+        l: parseInt(tile.l) + 1,
+        c: parseInt(tile.c)
+      }
     },
     get_tile_config (tile) {
       var n = (this.map.tiles.columns * tile.l) + tile.c
       return this.map.config[n]
     },
-    tile_config (tile) {
-      return $(`[data-tile='${tile.r}:${tile.c}']`).data('config') || '0000'
+    handler (e, tile) {
+      console.log('clique direito:', tile)
+      this.set_block([`${tile.l}:${tile.c}`])
+      // this.disable_tile(`${tile.l}:${tile.c}`)
+      e.preventDefault()
     }
   },
   beforeCreate () {
-    MapConfig().registerModule(Store)
+    // MapConfig().registerModule(Store)
     Quest().registerModule(Store)
     Store.dispatch('Map/initialize')
   },

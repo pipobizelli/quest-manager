@@ -3,6 +3,7 @@ export default () => {
     return Store.registerModule('Quest', {
       namespaced: true,
       state: {
+        map: {},
         components: {},
         actions: {},
         current_turn: 0,

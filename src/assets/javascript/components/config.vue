@@ -2,7 +2,10 @@
   <section class="config">
     <button type="button" name="show_path_config" @click="show_path_config">Show Path Config</button>
     <button type="button" name="show_tile_numbers" @click="show_tile_numbers">Show Tile Numbers</button>
-    <textarea disabled name="name" rows="10" cols="120" v-model="tile_config"></textarea>
+    <div>
+      <label for="tile_config">Tiles Config:</label>
+      <textarea disabled name="tile_config" id="tile_config" rows="10" cols="120" v-model="tile_config"></textarea>
+    </div>
   </section>
 </template>
 
