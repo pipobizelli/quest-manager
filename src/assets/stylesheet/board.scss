@@ -25,11 +25,107 @@
     z-index: 1;
 
     &--larger {
-      margin-right: .15%;
+      width: 3.95%;
     }
 
-    &--first {
-      margin-right: 0;
+    &--disabled {
+      background-color: rgba(200,200,200,.5);
+    }
+
+    &--pathconfig {
+      box-sizing: border-box;
+      position: relative;
+      opacity: .5;
+
+      input {
+        font-size: 8px;
+        border: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        opacity: .5;
+        text-align: center;
+        width: calc(100% - 3px);
+      }
+
+      &.tileconfig {
+        &-0000 {
+          border: 3px solid $gray;
+        }
+
+        &-1000 {
+          border: 3px solid $gray;
+          border-top: 3px solid red;
+        }
+
+        &-1001 {
+          border: 3px solid $gray;
+          border-top: 3px solid red;
+          border-left: 3px solid red;
+        }
+
+        &-1010 {
+          border: 3px solid $gray;
+          border-top: 3px solid red;
+          border-bottom: 3px solid red;
+        }
+
+        &-0100 {
+          border: 3px solid $gray;
+          border-right: 3px solid red;
+        }
+
+        &-0010 {
+          border: 3px solid $gray;
+          border-bottom: 3px solid red;
+        }
+
+        &-0001 {
+          border: 3px solid $gray;
+          border-left: 3px solid red;
+        }
+
+        &-0101 {
+          border: 3px solid $gray;
+          border-right: 3px solid red;
+          border-left: 3px solid red;
+        }
+
+        &-1100 {
+          border: 3px solid $gray;
+          border-top: 3px solid red;
+          border-right: 3px solid red;
+        }
+
+        &-0110 {
+          border: 3px solid $gray;
+          border-right: 3px solid red;
+          border-bottom: 3px solid red;
+        }
+
+        &-0011 {
+          border: 3px solid red;
+          border-top: 3px solid $gray;
+          border-right: 3px solid $gray;
+        }
+
+        &-1110 {
+          border: 3px solid $gray;
+          border-top: 3px solid red;
+          border-right: 3px solid red;
+          border-bottom: 3px solid red;
+        }
+
+        &-0111 {
+          border: 3px solid red;
+          border-top: 3px solid $gray;
+        }
+
+        &-1111 {
+          border: 3px solid red;
+        }
+      }
     }
   }
 
@@ -38,5 +134,9 @@
     position:absolute;
     width: 3.8%;
     height: 5.27%;
+
+    > img {
+      width: 100%;
+    }
   }
 }

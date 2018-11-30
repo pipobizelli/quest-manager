@@ -4,3 +4,4 @@ Vue.use(Vuex)
 export let Store = new Vuex.Store({
   'strict': true
 })
+window.Store = Store
