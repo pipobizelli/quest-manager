@@ -1,6 +1,6 @@
 export default (map) => {
   var getTilebyHandle = (handle) => {
-    if (window.typeof(handle) === 'string') {
+    if (typeof (handle) === 'string') {
       return {
         l: parseInt(handle.split(':')[0]),
         c: parseInt(handle.split(':')[1])
@@ -10,49 +10,51 @@ export default (map) => {
     return handle
   }
 
-  var getTile = (tile, index) => {
-    var tileObj = getTilebyHandle(tile)
-
+  var getTile = (handle, index) => {
+    var tile = getTilebyHandle(handle)
     if (index) {
       switch (index) {
-        case 'top':
         case 'up':
-          if (tileObj.l > 0) {
-            tileObj.l = tileObj.l - 1
+          if (tile.l > 0) {
+            tile.l = tile.l - 1
+          } else {
+            tile = false
           }
           break
         case 'down':
-        case 'bottom':
-          if (tileObj.l < parseInt(map.tiles.lines) - 1) {
-            tileObj.l = tileObj.l + 1
+          if (tile.l < parseInt(map.tiles.lines) - 1) {
+            tile.l = tile.l + 1
+          } else {
+            tile = false
           }
           break
         case 'left':
-        case 'next':
-          if (tileObj.c > 0) {
-            tileObj.c = tileObj.c - 1
+          if (tile.c > 0) {
+            tile.c = tile.c - 1
+          } else {
+            tile = false
           }
           break
         case 'right':
-        case 'prev':
-          if (tileObj.c < parseInt(map.tiles.columns) - 1) {
-            tileObj.c = tileObj.c + 1
+          if (tile.c < parseInt(map.tiles.columns) - 1) {
+            tile.c = tile.c + 1
+          } else {
+            tile = false
           }
           break
         default:
-          tileObj = false
+          tile = false
       }
-
-      return tileObj
     }
+    return tile
   }
 
   var getNextTile = (tile) => {
-    return getTile(tile, 'next')
+    return getTile(tile, 'right')
   }
 
   var getPrevTile = (tile) => {
-    return getTile(tile, 'prev')
+    return getTile(tile, 'left')
   }
 
   var getUpTile = (tile) => {
@@ -66,7 +68,15 @@ export default (map) => {
   var getTileConfig = (t) => {
     var tile = getTilebyHandle(t)
     var n = (map.tiles.columns * tile.l) + tile.c
-    return this.map.config[n]
+    return map.config[n]
+  }
+
+  var tileInLine = (t, n) => {
+    return getTilebyHandle(t).l === getTilebyHandle(n).l
+  }
+
+  var tileInColumn = (t, n) => {
+    return getTilebyHandle(t).c === getTilebyHandle(n).c
   }
 
   return {
@@ -76,6 +86,8 @@ export default (map) => {
     getPrevTile,
     getUpTile,
     getDownTile,
-    getTileConfig
+    getTileConfig,
+    tileInLine,
+    tileInColumn
   }
 }

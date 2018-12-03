@@ -74,7 +74,7 @@ config.module.rules.push({
     {
       loader: 'file-loader',
       options: {
-        publicPath: './assets'
+        publicPath: '//localhost/quest-manager/dist/assets/'
       }
     }
   ]

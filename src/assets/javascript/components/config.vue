@@ -24,8 +24,8 @@ export default {
   data () {
     return {
       tile_config: Store.state.Map.config,
-      path_config: true,
-      show_numbers: false
+      path_config: false,
+      show_numbers: true
     }
   },
   watch: {

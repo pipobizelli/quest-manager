@@ -20,6 +20,7 @@
       </template>
       <!-- <div v-show="!showPathConfig" class="draggable"></div>
       <div v-show="!showPathConfig" class="draggable red"></div> -->
+      <article class="actors" ref="container"></article>
     </section>
     <img src="../../images/board.jpg" alt="board">
   </article>
@@ -27,12 +28,13 @@
 
 <script>
 import $ from 'jquery'
+import Vue from 'vue'
 import interact from 'interactjs'
 import { EventHub } from '../event_hub'
 import { Store } from '../store'
 import Tile from '../helpers/tile'
 import HeroquestBoard from '../data/heroquest'
-// import MapConfig from '../modules/map'
+import Actor from '../components/actor.vue'
 import Quest from '../modules/quest'
 
 export default {
@@ -42,8 +44,8 @@ export default {
         components: Store.state.Quest.components,
         active_actor: Store.state.Quest.active_actor
       },
-      showNum: false,
-      showPathConfig: true,
+      showNum: true,
+      showPathConfig: false,
       gridWidth: 0,
       gridHeight: 0,
       map: {
@@ -61,17 +63,34 @@ export default {
       EventHub.$emit('Board/changeConfig', val)
     }
   },
+  components: {
+    Actor
+  },
   methods: {
     set_map_config (val) {
       this.map.config = val
     },
+    set_door (tiles) {
+      console.log(tiles)
+      var t1 = Tile(this.map).getTile(tiles[0])
+      var t2 = Tile(this.map).getTile(tiles[1])
+
+      if (Tile(this.map).tileInLine(t1, t2)) {
+        this.change_tile_config(t1, 1, '0')
+        this.change_tile_config(t2, 3, '0')
+      }
+
+      if (Tile(this.map).tileInColumn(t1, t2)) {
+        this.change_tile_config(t1, 2, '0')
+        this.change_tile_config(t2, 0, '0')
+      }
+    },
     set_block (tiles) {
       for (var t in tiles) {
-        var tile = Tile(this.map).getTile(tiles[t])
-        var tileUp = Tile(this.map).getUpTile(tile)
-        var tileDown = Tile(this.map).getDownTile(tile)
-        var tileLeft = Tile(this.map).getPrevTile(tile)
-        var tileRight = Tile(this.map).getNextTile(tile)
+        var tileUp = Tile(this.map).getUpTile(tiles[t])
+        var tileDown = Tile(this.map).getDownTile(tiles[t])
+        var tileLeft = Tile(this.map).getPrevTile(tiles[t])
+        var tileRight = Tile(this.map).getNextTile(tiles[t])
 
         if (tileUp) {
           this.change_tile_config(tileUp, 2, '1')
@@ -91,7 +110,7 @@ export default {
       }
     },
     change_tile_config (tile, index, state) {
-      var tileConfig = this.get_tile_config(tile).split('') // 0101 -> 0111
+      var tileConfig = Tile(this.map).getTileConfig(tile).split('') // 0101 -> 0111
       tileConfig[index] = state
       var config = this.map.config.slice(0)
       config[(this.map.tiles.columns * tile.l) + tile.c] = tileConfig.join('')
@@ -104,13 +123,22 @@ export default {
       target.style.webkitTransform = target.style.transform = `translate(${x}px, ${y}px)`
     },
     get_tile_config (tile) {
-      var n = (this.map.tiles.columns * tile.l) + tile.c
-      return this.map.config[n]
+      return Tile(this.map).getTileConfig(tile)
     },
     handler (e, tile) {
       // console.log('clique direito:', tile)
-      this.set_block([`${tile.l}:${tile.c}`])
+      this.set_door([`${tile.l}:${tile.c}`, `${tile.l}:${tile.c + 1}`])
       // this.disable_tile(`${tile.l}:${tile.c}`)
+      // var ComponentClass = Vue.extend(Actor)
+      // var instance = new ComponentClass({
+      //   propsData: {
+      //     handle: 'door',
+      //     isDraggable: false,
+      //     rotation: 0
+      //   }
+      // })
+      // instance.$mount()
+      // this.$refs.container.appendChild(instance.$el)
       e.preventDefault()
     }
   },
