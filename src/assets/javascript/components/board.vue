@@ -27,9 +27,10 @@
 
 <script>
 import $ from 'jquery'
-import { EventHub } from '../event_hub'
 import interact from 'interactjs'
+import { EventHub } from '../event_hub'
 import { Store } from '../store'
+import Tile from '../helpers/tile'
 import HeroquestBoard from '../data/heroquest'
 // import MapConfig from '../modules/map'
 import Quest from '../modules/quest'
@@ -66,11 +67,11 @@ export default {
     },
     set_block (tiles) {
       for (var t in tiles) {
-        var tile = this.get_tile(tiles[t])
-        var tileUp = this.get_tile_up(tile)
-        var tileDown = this.get_tile_down(tile)
-        var tileLeft = this.get_tile_left(tile)
-        var tileRight = this.get_tile_right(tile)
+        var tile = Tile(this.map).getTile(tiles[t])
+        var tileUp = Tile(this.map).getUpTile(tile)
+        var tileDown = Tile(this.map).getDownTile(tile)
+        var tileLeft = Tile(this.map).getPrevTile(tile)
+        var tileRight = Tile(this.map).getNextTile(tile)
 
         if (tileUp) {
           this.change_tile_config(tileUp, 2, '1')
@@ -102,53 +103,18 @@ export default {
       var y = $(`[data-tile='${payload.r}:${payload.c}']`)[0].offsetTop
       target.style.webkitTransform = target.style.transform = `translate(${x}px, ${y}px)`
     },
-    get_tile (handle) {
-      return {
-        l: handle.split(':')[0],
-        c: handle.split(':')[1]
-      }
-    },
-    get_tile_up (tile) {
-      if (tile.l === '0') return false
-      return {
-        l: parseInt(tile.l) - 1,
-        c: parseInt(tile.c)
-      }
-    },
-    get_tile_left (tile) {
-      if (tile.c === '0') return false
-      return {
-        l: parseInt(tile.l),
-        c: parseInt(tile.c) - 1
-      }
-    },
-    get_tile_right (tile) {
-      if (parseInt(tile.c) === this.map.tiles.columns - 1) return false
-      return {
-        l: parseInt(tile.l),
-        c: parseInt(tile.c) + 1
-      }
-    },
-    get_tile_down (tile) {
-      if (parseInt(tile.l) === this.map.tiles.lines - 1) return false
-      return {
-        l: parseInt(tile.l) + 1,
-        c: parseInt(tile.c)
-      }
-    },
     get_tile_config (tile) {
       var n = (this.map.tiles.columns * tile.l) + tile.c
       return this.map.config[n]
     },
     handler (e, tile) {
-      console.log('clique direito:', tile)
+      // console.log('clique direito:', tile)
       this.set_block([`${tile.l}:${tile.c}`])
       // this.disable_tile(`${tile.l}:${tile.c}`)
       e.preventDefault()
     }
   },
   beforeCreate () {
-    // MapConfig().registerModule(Store)
     Quest().registerModule(Store)
     Store.dispatch('Map/initialize')
   },
