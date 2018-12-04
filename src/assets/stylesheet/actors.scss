@@ -1,6 +1,33 @@
+// One Tile Actors =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+.barbarian { @include oneTileActor('barbarian') }
+.elf { @include oneTileActor('elf') }
+.dwarf { @include oneTileActor('dwarf') }
+.wizard { @include oneTileActor('wizard') }
+.orc { @include oneTileActor('orc') }
+.goblin { @include oneTileActor('goblin') }
+.block { @include oneTileActor('block') }
+
+// 2x1 Tiles Actors =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+.doubleblock {
+  @include oneTileActor('doubleblock');
+  @include doubleW;
+}
+
 .door {
-  width: 7.6%;
-  height: 5.27%;
-  position: absolute;
-  background: url('../images/door.png') no-repeat 0 0;
+  @include oneTileActor('door');
+  @include doubleW;
+}
+
+// 2x2 Tiles Actors =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+.stairway {
+  @include oneTileActor('stairway');
+  @include doubleH;
+  @include doubleW;
+}
+
+// 2x3 Tiles Actors =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+.table {
+  @include oneTileActor('table');
+  @include tripleH;
+  @include tripleW;
 }

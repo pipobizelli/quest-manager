@@ -10,30 +10,30 @@
       Show Tile Numbers
     </label>
 
-    <label for="tile_config">Tiles Config:</label>
-    <textarea disabled name="tile_config" id="tile_config" rows="10" cols="120" v-model="tile_config"></textarea>
+    <!-- <label for="tile_config">Tiles Config:</label>
+    <textarea disabled name="tile_config" id="tile_config" rows="10" cols="120" v-model="tile_config"></textarea> -->
   </section>
 </template>
 
 <script>
 import { EventHub } from '../event_hub'
 import { Store } from '../store'
-import MapConfig from '../modules/map'
-MapConfig().registerModule(Store)
 export default {
   data () {
     return {
-      tile_config: Store.state.Map.config,
       path_config: false,
-      show_numbers: true
+      show_numbers: false
+      // tile_config
     }
   },
   watch: {
     path_config () {
       EventHub.$emit('Config/togglePathConfig')
+      Store.dispatch('Board/toggle_path')
     },
     show_numbers () {
       EventHub.$emit('Config/toggleTileNumbers')
+      Store.dispatch('Board/show_numbers')
     }
   },
   created () {

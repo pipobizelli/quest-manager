@@ -1,0 +1,23 @@
+@mixin doubleH {
+    height: 10.54%;
+}
+
+@mixin doubleW {
+    width: 7.6%;
+}
+
+@mixin tripleH {
+    height: 15.81%;
+}
+
+@mixin tripleW {
+    width: 11.4%;
+}
+
+@mixin oneTileActor($actor){
+  width: $tileW;
+  height: $tileH;
+  position: absolute;
+  background: url('../images/' + $actor + '.png') no-repeat 0 0;
+  background-size: 100%;
+}

@@ -35,7 +35,6 @@ import { Store } from '../store'
 import Tile from '../helpers/tile'
 import HeroquestBoard from '../data/heroquest'
 import Actor from '../components/actor.vue'
-import Quest from '../modules/quest'
 
 export default {
   data () {
@@ -44,8 +43,8 @@ export default {
         components: Store.state.Quest.components,
         active_actor: Store.state.Quest.active_actor
       },
-      showNum: true,
-      showPathConfig: false,
+      showNum: Store.state.Board.show_numbers,
+      showPathConfig: Store.state.Board.path_config,
       gridWidth: 0,
       gridHeight: 0,
       map: {
@@ -109,6 +108,19 @@ export default {
         }
       }
     },
+    set_actor (actor) {
+      var ComponentClass = Vue.extend(Actor)
+      var instance = new ComponentClass({
+        propsData: {
+          handle: actor.handle,
+          type: actor.type,
+          rotation: actor.rotation,
+          tiles: actor.tiles
+        }
+      })
+      instance.$mount()
+      this.$refs.container.appendChild(instance.$el)
+    },
     change_tile_config (tile, index, state) {
       var tileConfig = Tile(this.map).getTileConfig(tile).split('') // 0101 -> 0111
       tileConfig[index] = state
@@ -127,30 +139,14 @@ export default {
     },
     handler (e, tile) {
       // console.log('clique direito:', tile)
-      this.set_door([`${tile.l}:${tile.c}`, `${tile.l}:${tile.c + 1}`])
-      // this.disable_tile(`${tile.l}:${tile.c}`)
-      // var ComponentClass = Vue.extend(Actor)
-      // var instance = new ComponentClass({
-      //   propsData: {
-      //     handle: 'door',
-      //     isDraggable: false,
-      //     rotation: 0
-      //   }
-      // })
-      // instance.$mount()
-      // this.$refs.container.appendChild(instance.$el)
+      // this.set_door([`${tile.l}:${tile.c}`, `${tile.l}:${tile.c + 1}`])
       e.preventDefault()
     }
-  },
-  beforeCreate () {
-    Quest().registerModule(Store)
-    Store.dispatch('Map/initialize')
   },
   created () {
     EventHub.$on('Config/togglePathConfig', () => {
       this.showPathConfig = !this.showPathConfig
     })
-
     EventHub.$on('Config/toggleTileNumbers', () => {
       this.showNum = !this.showNum
     })

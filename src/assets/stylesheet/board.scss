@@ -142,8 +142,9 @@
   .draggable {
     background-color: blue;
     position:absolute;
-    width: 3.8%;
-    height: 5.27%;
+    width: $tileW;
+    height: $tileH;
+    z-index: 3;
 
     > img {
       width: 100%;
