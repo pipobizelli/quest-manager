@@ -1,3 +1,7 @@
+.actors {
+  height: 100%;
+  width: 100%;
+}
 // One Tile Actors =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 .barbarian { @include oneTileActor('barbarian') }
 .elf { @include oneTileActor('elf') }
@@ -16,6 +20,10 @@
 .door {
   @include oneTileActor('door');
   @include doubleW;
+
+  &--90 {
+    transform-origin: 17px 17px;
+  }
 }
 
 // 2x2 Tiles Actors =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -28,6 +36,10 @@
 // 2x3 Tiles Actors =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 .table {
   @include oneTileActor('table');
-  @include tripleH;
+  @include doubleH;
   @include tripleW;
+
+  &--90 {
+    transform-origin: 34px 34px;
+  }
 }

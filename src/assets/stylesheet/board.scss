@@ -140,10 +140,9 @@
   }
 
   .draggable {
-    background-color: blue;
     position:absolute;
-    width: $tileW;
-    height: $tileH;
+    // width: $tileW;
+    // height: $tileH;
     z-index: 3;
 
     > img {

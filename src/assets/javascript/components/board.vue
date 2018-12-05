@@ -1,8 +1,8 @@
 <template>
   <article class="board">
     <section class="tiles_wrapper">
-      <template v-for="(line, l) in map.tiles.lines">
-        <div v-for="(column, c) in map.tiles.columns"
+      <template v-for="(line, l) in board.tiles.lines">
+        <div v-for="(column, c) in board.tiles.columns"
           :class="[{
               'tile--larger': (c+1)%3 === 0
             },{
@@ -14,8 +14,8 @@
           <p v-show="showNum">
             {{l}}:{{c}}
           </p>
-          <input v-show="showPathConfig" type="text" name="config"
-          v-model="map.config[(map.tiles.columns * l) + c]" maxlength="10">
+          <!-- <input v-show="showPathConfig" type="text" name="config"
+          v-model="board.config[(board.tiles.columns * l) + c]" maxlength="10"> -->
         </div>
       </template>
       <!-- <div v-show="!showPathConfig" class="draggable"></div>
@@ -39,15 +39,11 @@ import Actor from '../components/actor.vue'
 export default {
   data () {
     return {
-      quest: {
-        components: Store.state.Quest.components,
-        active_actor: Store.state.Quest.active_actor
-      },
-      showNum: Store.state.Board.show_numbers,
-      showPathConfig: Store.state.Board.path_config,
       gridWidth: 0,
       gridHeight: 0,
-      map: {
+      showPathConfig: Store.state.Board.path_config,
+      showNum: Store.state.Board.show_numbers,
+      board: {
         tiles: {
           lines: HeroquestBoard.lines,
           columns: HeroquestBoard.columns
@@ -57,8 +53,8 @@ export default {
     }
   },
   watch: {
-    'map.config' (val, oldVal) {
-      this.set_map_config(val)
+    'board.config' (val, oldVal) {
+      this.set_board_config(val)
       EventHub.$emit('Board/changeConfig', val)
     }
   },
@@ -66,30 +62,38 @@ export default {
     Actor
   },
   methods: {
-    set_map_config (val) {
-      this.map.config = val
+    set_board_config (val) {
+      this.board.config = val
     },
     set_door (tiles) {
-      console.log(tiles)
-      var t1 = Tile(this.map).getTile(tiles[0])
-      var t2 = Tile(this.map).getTile(tiles[1])
+      var t1 = Tile(this.board).getTile(tiles[0])
+      var t2 = Tile(this.board).getTile(tiles[1])
+      var rot = 0
 
-      if (Tile(this.map).tileInLine(t1, t2)) {
+      if (Tile(this.board).tileInLine(t1, t2)) {
         this.change_tile_config(t1, 1, '0')
         this.change_tile_config(t2, 3, '0')
       }
 
-      if (Tile(this.map).tileInColumn(t1, t2)) {
+      if (Tile(this.board).tileInColumn(t1, t2)) {
         this.change_tile_config(t1, 2, '0')
         this.change_tile_config(t2, 0, '0')
+        rot = 90
       }
+
+      this.set_actor({
+        handle: 'door',
+        type: 'door',
+        rotation: rot,
+        position: Tile(this.board).getTileOffset(t1)
+      })
     },
-    set_block (tiles) {
+    set_blocks (tiles) {
       for (var t in tiles) {
-        var tileUp = Tile(this.map).getUpTile(tiles[t])
-        var tileDown = Tile(this.map).getDownTile(tiles[t])
-        var tileLeft = Tile(this.map).getPrevTile(tiles[t])
-        var tileRight = Tile(this.map).getNextTile(tiles[t])
+        var tileUp = Tile(this.board).getUpTile(tiles[t])
+        var tileDown = Tile(this.board).getDownTile(tiles[t])
+        var tileLeft = Tile(this.board).getPrevTile(tiles[t])
+        var tileRight = Tile(this.board).getNextTile(tiles[t])
 
         if (tileUp) {
           this.change_tile_config(tileUp, 2, '1')
@@ -107,6 +111,13 @@ export default {
           this.change_tile_config(tileRight, 3, '1')
         }
       }
+
+      this.set_actor({
+        handle: tiles.length > 1 ? 'doubleblock' : 'block',
+        type: 'block',
+        rotation: 0,
+        position: Tile(this.board).getTileOffset(tiles[0])
+      })
     },
     set_actor (actor) {
       var ComponentClass = Vue.extend(Actor)
@@ -115,27 +126,49 @@ export default {
           handle: actor.handle,
           type: actor.type,
           rotation: actor.rotation,
-          tiles: actor.tiles
+          position: actor.position
         }
       })
       instance.$mount()
       this.$refs.container.appendChild(instance.$el)
     },
-    change_tile_config (tile, index, state) {
-      var tileConfig = Tile(this.map).getTileConfig(tile).split('') // 0101 -> 0111
-      tileConfig[index] = state
-      var config = this.map.config.slice(0)
-      config[(this.map.tiles.columns * tile.l) + tile.c] = tileConfig.join('')
-      this.set_map_config(config)
-    },
     set_target_position (payload) {
+      console.log(payload)
       var target = payload.target
       var x = $(`[data-tile='${payload.r}:${payload.c}']`)[0].offsetLeft
       var y = $(`[data-tile='${payload.r}:${payload.c}']`)[0].offsetTop
       target.style.webkitTransform = target.style.transform = `translate(${x}px, ${y}px)`
     },
+    set_quest (quest) {
+      let blocks = quest.map.blocks
+      for (var b in blocks) {
+        this.set_blocks(blocks[b].tiles)
+      }
+
+      let doors = quest.map.doors
+      for (var d in doors) {
+        this.set_door(doors[d].tiles)
+      }
+
+      let comps = Object.values(quest.components)
+      for (var c in comps) {
+        this.set_actor({
+          handle: comps[c].label,
+          type: comps[c].type,
+          rotation: comps[c].attributes.rotation,
+          position: Tile(this.board).getTileOffset(comps[c].attributes.tiles[0])
+        })
+      }
+    },
     get_tile_config (tile) {
-      return Tile(this.map).getTileConfig(tile)
+      return Tile(this.board).getTileConfig(tile)
+    },
+    change_tile_config (tile, index, state) {
+      var tileConfig = Tile(this.board).getTileConfig(tile).split('')
+      var config = this.board.config.slice(0)
+      tileConfig[index] = state
+      config[(this.board.tiles.columns * tile.l) + tile.c] = tileConfig.join('')
+      this.set_board_config(config)
     },
     handler (e, tile) {
       // console.log('clique direito:', tile)
@@ -150,6 +183,9 @@ export default {
     EventHub.$on('Config/toggleTileNumbers', () => {
       this.showNum = !this.showNum
     })
+    EventHub.$on('Config/questLoaded', () => {
+      this.set_quest(Store.state.Quest)
+    })
   },
   mounted () {
     this.$nextTick(function () {
@@ -157,15 +193,15 @@ export default {
         inertia: false,
         restrict: {
           restriction: 'parent',
-          endOnly: false,
-          elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+          endOnly: false
+          // elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
         },
         autoScroll: false
       }).on('dragmove', (event) => {
-        var target = event.target
-        var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
-        var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
-        target.style.webkitTransform =
+        let target = event.target
+        let x = parseFloat(target.getAttribute('data-x')) + event.dx
+        let y = parseFloat(target.getAttribute('data-y')) + event.dy
+
         target.style.transform = `translate(${x}px, ${y}px)`
 
         target.setAttribute('data-x', x)

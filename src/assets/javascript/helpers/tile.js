@@ -71,6 +71,16 @@ export default (map) => {
     return map.config[n]
   }
 
+  var getTileOffset = (t) => {
+    var tile = getTilebyHandle(t)
+    var dom = document.querySelectorAll(`[data-tile="${tile.l}:${tile.c}"]`)[0]
+    // return `${dom.offsetLeft}px, ${dom.offsetTop}px`
+    return {
+      x: dom.offsetLeft,
+      y: dom.offsetTop
+    }
+  }
+
   var tileInLine = (t, n) => {
     return getTilebyHandle(t).l === getTilebyHandle(n).l
   }
@@ -87,6 +97,7 @@ export default (map) => {
     getUpTile,
     getDownTile,
     getTileConfig,
+    getTileOffset,
     tileInLine,
     tileInColumn
   }
