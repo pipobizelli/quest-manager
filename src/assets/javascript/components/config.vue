@@ -9,15 +9,16 @@
       Show Tile Numbers
     </label>
     <button type="button" name="load" @click="load_quest">Load Demo Quest</button>
+    <button type="button" name="play" @click="play">PLAY!</button>
     <!-- <label for="tile_config">Tiles Config:</label>
-    <textarea disabled name="tile_config" id="tile_config" rows="10" cols="120" v-model="tile_config"></textarea> -->
+    <textarea disabled name="tile_config" id="tile_config" rows="10" cols="120"></textarea> -->
   </section>
 </template>
 
 <script>
 import { EventHub } from '../event_hub'
 import { Store } from '../store'
-import Quest from '../data/quest'
+import Quest from '../data/quest_basic'
 export default {
   data () {
     return {
@@ -42,6 +43,9 @@ export default {
         Store.dispatch('Quest/set_current_turn')
         EventHub.$emit('Config/questLoaded')
       })
+    },
+    play () {
+      EventHub.$emit('Config/play')
     }
   },
   created () {

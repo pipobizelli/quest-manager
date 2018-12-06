@@ -4,10 +4,10 @@ const quest = {
   map: {
     doors: [{
       tiles: ['2:4', '2:5'],
-      rotation: 90
+      rotation: 0
     }, {
       tiles: ['3:7', '4:7'],
-      rotation: 0
+      rotation: 90
     }],
     blocks: [{
       tiles: ['0:12', '0:13'],

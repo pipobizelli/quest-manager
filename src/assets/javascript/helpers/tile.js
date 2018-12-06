@@ -81,11 +81,11 @@ export default (map) => {
     }
   }
 
-  var tileInLine = (t, n) => {
+  var isTileInLine = (t, n) => {
     return getTilebyHandle(t).l === getTilebyHandle(n).l
   }
 
-  var tileInColumn = (t, n) => {
+  var isTileInColumn = (t, n) => {
     return getTilebyHandle(t).c === getTilebyHandle(n).c
   }
 
@@ -98,7 +98,7 @@ export default (map) => {
     getDownTile,
     getTileConfig,
     getTileOffset,
-    tileInLine,
-    tileInColumn
+    isTileInLine,
+    isTileInColumn
   }
 }

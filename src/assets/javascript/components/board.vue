@@ -7,10 +7,10 @@
               'tile--larger': (c+1)%3 === 0
             },{
               'tile--pathconfig': showPathConfig
-            }, `tileconfig-${get_tile_config({l,c})}`, 'tile']"
+            }, `tileconfig-${get_tile_config(`${l}:${c}`)}`, 'tile']"
           :data-tile="`${l}:${c}`"
-          @click="get_tile_config({l,c})"
-          @contextmenu.prevent="handler($event, {l,c})">
+          @click="get_tile_config(`${l}:${c}`)"
+          @contextmenu.prevent="handler($event, `${l}:${c}`)">
           <p v-show="showNum">
             {{l}}:{{c}}
           </p>
@@ -32,9 +32,10 @@ import Vue from 'vue'
 import interact from 'interactjs'
 import { EventHub } from '../event_hub'
 import { Store } from '../store'
-import Tile from '../helpers/tile'
-import HeroquestBoard from '../data/heroquest'
+import HeroquestBoard from '../data/heroquest.json'
 import Actor from '../components/actor.vue'
+import Tile from '../helpers/tile'
+import Pathfinder from '../helpers/pathfinder'
 
 export default {
   data () {
@@ -66,18 +67,21 @@ export default {
       this.board.config = val
     },
     set_door (tiles) {
-      var t1 = Tile(this.board).getTile(tiles[0])
-      var t2 = Tile(this.board).getTile(tiles[1])
+      var t1 = tiles[0]
+      var t2 = tiles[1]
       var rot = 0
 
-      if (Tile(this.board).tileInLine(t1, t2)) {
-        this.change_tile_config(t1, 1, '0')
-        this.change_tile_config(t2, 3, '0')
+      this.board.config[t1].hasDoor = true
+      this.board.config[t2].hasDoor = true
+
+      if (Tile(this.board).isTileInLine(t1, t2)) {
+        // this.change_tile_config(t1, 1, '0')
+        // this.change_tile_config(t2, 3, '0')
       }
 
-      if (Tile(this.board).tileInColumn(t1, t2)) {
-        this.change_tile_config(t1, 2, '0')
-        this.change_tile_config(t2, 0, '0')
+      if (Tile(this.board).isTileInColumn(t1, t2)) {
+        // this.change_tile_config(t1, 2, '0')
+        // this.change_tile_config(t2, 0, '0')
         rot = 90
       }
 
@@ -96,19 +100,19 @@ export default {
         var tileRight = Tile(this.board).getNextTile(tiles[t])
 
         if (tileUp) {
-          this.change_tile_config(tileUp, 2, '1')
+          this.change_tile_config(`${tileUp.l}:${tileUp.c}`, 2, '1')
         }
 
         if (tileDown) {
-          this.change_tile_config(tileDown, 0, '1')
+          this.change_tile_config(`${tileDown.l}:${tileDown.c}`, 0, '1')
         }
 
         if (tileLeft) {
-          this.change_tile_config(tileLeft, 1, '1')
+          this.change_tile_config(`${tileLeft.l}:${tileLeft.c}`, 1, '1')
         }
 
         if (tileRight) {
-          this.change_tile_config(tileRight, 3, '1')
+          this.change_tile_config(`${tileRight.l}:${tileRight.c}`, 3, '1')
         }
       }
 
@@ -123,6 +127,7 @@ export default {
       var ComponentClass = Vue.extend(Actor)
       var instance = new ComponentClass({
         propsData: {
+          tiles: actor.tiles,
           handle: actor.handle,
           type: actor.type,
           rotation: actor.rotation,
@@ -156,23 +161,21 @@ export default {
           handle: comps[c].label,
           type: comps[c].type,
           rotation: comps[c].attributes.rotation,
-          position: Tile(this.board).getTileOffset(comps[c].attributes.tiles[0])
+          position: Tile(this.board).getTileOffset(comps[c].attributes.tiles[0]),
+          tiles: comps[c].attributes.tiles
         })
       }
     },
     get_tile_config (tile) {
-      return Tile(this.board).getTileConfig(tile)
+      return this.board.config[tile].config
     },
     change_tile_config (tile, index, state) {
-      var tileConfig = Tile(this.board).getTileConfig(tile).split('')
-      var config = this.board.config.slice(0)
+      var tileConfig = this.get_tile_config(tile).split('') // Tile(this.board).getTileConfig(tile).split('')
       tileConfig[index] = state
-      config[(this.board.tiles.columns * tile.l) + tile.c] = tileConfig.join('')
-      this.set_board_config(config)
+      this.board.config[tile].config = tileConfig.join('')
     },
     handler (e, tile) {
-      // console.log('clique direito:', tile)
-      // this.set_door([`${tile.l}:${tile.c}`, `${tile.l}:${tile.c + 1}`])
+      Pathfinder(this.board).getAllPaths(tile)
       e.preventDefault()
     }
   },
@@ -186,6 +189,10 @@ export default {
     EventHub.$on('Config/questLoaded', () => {
       this.set_quest(Store.state.Quest)
     })
+    EventHub.$on('Config/play', () => {
+      console.log(Store.state.Quest.active_actor)
+    })
+    window.Pathfinder = Pathfinder(this.board)
   },
   mounted () {
     this.$nextTick(function () {

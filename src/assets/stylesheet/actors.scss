@@ -10,6 +10,7 @@
 .orc { @include oneTileActor('orc') }
 .goblin { @include oneTileActor('goblin') }
 .block { @include oneTileActor('block') }
+.chest { @include oneTileActor('chest') }
 
 // 2x1 Tiles Actors =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 .doubleblock {
