@@ -4,6 +4,7 @@ export default () => {
       namespaced: true,
       state: {
         map: {},
+        objective: {},
         components: {},
         actions: {},
         current_turn: 0,
@@ -15,6 +16,9 @@ export default () => {
         },
         set_active_actor (state, actor) {
           state.active_actor = actor
+        },
+        set_objective (state, objective) {
+          state.objective = objective
         },
         set_components (state, components) {
           state.components = Object.assign({}, state.components, components)
@@ -37,6 +41,9 @@ export default () => {
           }
           commit('set_active_actor', sortedActors[state.current_turn].label)
           commit('set_current_turn', state.current_turn + 1)
+        },
+        set_objective ({commit}, objective) {
+          commit('set_objective', objective)
         },
         set_map ({commit}, map) {
           commit('set_map', map)

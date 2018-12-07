@@ -18,8 +18,6 @@
           v-model="board.config[(board.tiles.columns * l) + c]" maxlength="10"> -->
         </div>
       </template>
-      <!-- <div v-show="!showPathConfig" class="draggable"></div>
-      <div v-show="!showPathConfig" class="draggable red"></div> -->
       <article class="actors" ref="container"></article>
     </section>
     <img src="../../images/board.jpg" alt="board">
@@ -57,6 +55,11 @@ export default {
     'board.config' (val, oldVal) {
       this.set_board_config(val)
       EventHub.$emit('Board/changeConfig', val)
+    }
+  },
+  computed: {
+    quest () {
+      return Store.state.Quest
     }
   },
   components: {
@@ -155,6 +158,17 @@ export default {
         this.set_door(doors[d].tiles)
       }
 
+      let objectives = Object.values(quest.objective)
+      for (var o in objectives) {
+        this.set_actor({
+          handle: objectives[o].label,
+          type: objectives[o].type,
+          rotation: objectives[o].attributes.rotation,
+          position: Tile(this.board).getTileOffset(objectives[o].attributes.tiles[0]),
+          tiles: objectives[o].attributes.tiles
+        })
+      }
+
       let comps = Object.values(quest.components)
       for (var c in comps) {
         this.set_actor({
@@ -173,6 +187,20 @@ export default {
       var tileConfig = this.get_tile_config(tile).split('') // Tile(this.board).getTileConfig(tile).split('')
       tileConfig[index] = state
       this.board.config[tile].config = tileConfig.join('')
+    },
+    play_next_turn () {
+      var action = 0
+      var active = this.quest.active_actor
+      var actorObject = this.quest.components[active]
+      var pathArr = Pathfinder(this.board).getAllPaths(actorObject.attributes.tiles[0])
+
+      console.log(action, pathArr)
+      // is objective in sight?
+      // is enemy in sight?
+        // is possible attack an enemy?
+      // is any door?
+        // which door is closest to the objective tile?
+        // get the short path to this door
     },
     handler (e, tile) {
       Pathfinder(this.board).getAllPaths(tile)

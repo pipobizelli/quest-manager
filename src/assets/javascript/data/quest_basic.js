@@ -1,7 +1,22 @@
 const quest = {
   current_turn: 0,
   active_actor: '',
-  objective: 'open the chest',
+  objective: {
+    chest: {
+      type: 'objective',
+      label: 'chest',
+      draggable: false,
+      attributes: {
+        open: false,
+        rotation: 90,
+        tiles: ['2:11'],
+        life: false,
+        attack: 0,
+        defense: 0,
+        move: 0
+      }
+    }
+  },
   map: {
     doors: [{
       tiles: ['2:4', '2:5'],
@@ -23,20 +38,6 @@ const quest = {
         attack: 3,
         defense: 2,
         move: 10
-      }
-    },
-    chest: {
-      type: 'objective',
-      label: 'chest',
-      draggable: false,
-      attributes: {
-        open: false,
-        rotation: 90,
-        tiles: ['2:11'],
-        life: false,
-        attack: 0,
-        defense: 0,
-        move: 0
       }
     }
   }
