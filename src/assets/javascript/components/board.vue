@@ -58,9 +58,7 @@ export default {
     }
   },
   computed: {
-    quest () {
-      return Store.state.Quest
-    }
+    quest () { return Store.state.Quest }
   },
   components: {
     Actor
@@ -77,14 +75,7 @@ export default {
       this.board.config[t1].hasDoor = true
       this.board.config[t2].hasDoor = true
 
-      if (Tile(this.board).isTileInLine(t1, t2)) {
-        // this.change_tile_config(t1, 1, '0')
-        // this.change_tile_config(t2, 3, '0')
-      }
-
       if (Tile(this.board).isTileInColumn(t1, t2)) {
-        // this.change_tile_config(t1, 2, '0')
-        // this.change_tile_config(t2, 0, '0')
         rot = 90
       }
 
@@ -94,6 +85,42 @@ export default {
         rotation: rot,
         position: Tile(this.board).getTileOffset(t1)
       })
+    },
+    open_door (t1) {
+      this.board.config[t1].hasDoor = false
+
+      var arr = [Tile(this.board).getTile(t1, 'up'),
+        Tile(this.board).getTile(t1, 'down'),
+        Tile(this.board).getTile(t1, 'left'),
+        Tile(this.board).getTile(t1, 'right')]
+
+      for (var t in arr) {
+        var handle = `${arr[t].l}:${arr[t].c}`
+        if (arr[t] && this.board.config[handle].hasDoor) {
+          this.board.config[handle].hasDoor = false
+          var t2 = handle
+        }
+      }
+
+      if (Tile(this.board).isTileInLine(t1, t2)) {
+        if (t1 < t2) {
+          this.change_tile_config(t1, 1, '0')
+          this.change_tile_config(t2, 3, '0')
+        } else {
+          this.change_tile_config(t1, 3, '0')
+          this.change_tile_config(t2, 1, '0')
+        }
+      }
+
+      if (Tile(this.board).isTileInColumn(t1, t2)) {
+        if (t1 < t2) {
+          this.change_tile_config(t1, 2, '0')
+          this.change_tile_config(t2, 0, '0')
+        } else {
+          this.change_tile_config(t1, 0, '0')
+          this.change_tile_config(t2, 2, '0')
+        }
+      }
     },
     set_blocks (tiles) {
       for (var t in tiles) {
@@ -141,7 +168,6 @@ export default {
       this.$refs.container.appendChild(instance.$el)
     },
     set_target_position (payload) {
-      console.log(payload)
       var target = payload.target
       var x = $(`[data-tile='${payload.r}:${payload.c}']`)[0].offsetLeft
       var y = $(`[data-tile='${payload.r}:${payload.c}']`)[0].offsetTop
@@ -188,14 +214,47 @@ export default {
       tileConfig[index] = state
       this.board.config[tile].config = tileConfig.join('')
     },
-    play_next_turn () {
-      var action = 0
+    exec_next_turn () {
+      // var action = 0
       var active = this.quest.active_actor
       var actorObject = this.quest.components[active]
-      var pathArr = Pathfinder(this.board).getAllPaths(actorObject.attributes.tiles[0])
+      var start = actorObject.attributes.tiles[0]
+      var objective = Object.values(this.quest.objective)[0]
+      var objectiveTile = objective.attributes.tiles[0]
+      var pathArr = Pathfinder(this.board).getAllPaths(start)
 
-      console.log(action, pathArr)
-      // is objective in sight?
+      // var path = Pathfinder(this.board).getPath(start, objectiveTile, [start])
+      var end = start
+
+      console.log('is objective in sight?')
+      if (pathArr.indexOf(objectiveTile) >= 0) {
+        console.log('yeah!')
+        end = objectiveTile
+      } else {
+        console.log('no...')
+        // is any door?
+        console.log('is any door?')
+        for (var t in pathArr) {
+          var tile = pathArr[t]
+          if (this.board.config[tile].hasDoor) {
+            console.log('yeah!')
+            end = tile
+            break
+          }
+        }
+      }
+
+      var path = Pathfinder(this.board).getPath(start, end, [start])
+      for (var p in path) {
+        EventHub.$emit('Actor/move', {
+          handle: active,
+          x: Tile(this.board).getTileOffset(path[p]).x,
+          y: Tile(this.board).getTileOffset(path[p]).y,
+          i: p
+        })
+      }
+
+      // TODO ====>
       // is enemy in sight?
         // is possible attack an enemy?
       // is any door?
@@ -203,7 +262,9 @@ export default {
         // get the short path to this door
     },
     handler (e, tile) {
-      Pathfinder(this.board).getAllPaths(tile)
+      // Pathfinder(this.board).getAllPaths(tile)
+      // console.log(tile)
+      this.open_door(tile)
       e.preventDefault()
     }
   },
@@ -218,9 +279,12 @@ export default {
       this.set_quest(Store.state.Quest)
     })
     EventHub.$on('Config/play', () => {
-      console.log(Store.state.Quest.active_actor)
+      // console.log(Store.state.Quest.active_actor)
+      this.exec_next_turn()
     })
+    window.Tile = Tile(this.board)
     window.Pathfinder = Pathfinder(this.board)
+    window.EventHub = EventHub
   },
   mounted () {
     this.$nextTick(function () {

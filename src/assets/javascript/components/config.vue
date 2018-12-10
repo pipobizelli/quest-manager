@@ -1,11 +1,11 @@
 <template>
   <section class="config">
     <label>
-      <input type="checkbox" name="show_path_config" id="show_path_config" v-model="path_config">
+      <input type="checkbox" name="show_path_config" id="show_path_config" @click="toggle_config">
       Show Path Config
     </label>
     <label>
-      <input type="checkbox" id="show_tile_numbers" name="show_tile_numbers" v-model="show_numbers">
+      <input type="checkbox" id="show_tile_numbers" name="show_tile_numbers" @click="toggle_numbers">
       Show Tile Numbers
     </label>
     <!-- <button type="button" name="load" @click="load_quest">Load Demo Quest</button> -->
@@ -20,23 +20,23 @@ import { EventHub } from '../event_hub'
 import { Store } from '../store'
 import Quest from '../data/quest_basic'
 export default {
-  data () {
-    return {
-      path_config: false,
-      show_numbers: false
-    }
-  },
-  watch: {
+  computed: {
     path_config () {
-      EventHub.$emit('Config/togglePathConfig')
-      Store.dispatch('Board/toggle_path')
+      return Store.state.Board.path_config
     },
     show_numbers () {
-      EventHub.$emit('Config/toggleTileNumbers')
-      Store.dispatch('Board/toggle_numbers')
+      return Store.state.Board.show_numbers
     }
   },
   methods: {
+    toggle_config () {
+      EventHub.$emit('Config/togglePathConfig')
+      Store.dispatch('Board/toggle_path')
+    },
+    toggle_numbers () {
+      EventHub.$emit('Config/toggleTileNumbers')
+      Store.dispatch('Board/toggle_numbers')
+    },
     load_quest () {
       Store.dispatch('Quest/set_objective', Quest.objective)
       Store.dispatch('Quest/set_map', Quest.map)
@@ -47,6 +47,11 @@ export default {
     },
     play () {
       EventHub.$emit('Config/play')
+    //   EventHub.$emit('Actor/move', {
+    //     handle: 'barbarian',
+    //     x: 103,
+    //     y: 69
+    //   })
     }
   },
   created () {

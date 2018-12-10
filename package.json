@@ -4,7 +4,9 @@
   "description": "a heroquest AI project to tests and help with quests development",
   "main": "index.js",
   "scripts": {
-    "syncFiles": "./node_modules/.bin/webpack --progress --config webpack.config.js"
+    "server": "http-serve dist/",
+    "syncFiles": "./node_modules/.bin/webpack --progress --config webpack.config.js",
+    "ngrok": "sleep 2 && ngrok http 5000 --subdomain questmanager.ngrok.io --log stdout"
   },
   "repository": {
     "type": "git",
@@ -28,8 +30,10 @@
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-preset-env": "^1.7.0",
+    "clean-webpack-plugin": "^1.0.0",
     "copy-webpack-plugin": "^4.6.0",
     "css-loader": "^1.0.1",
+    "express": "^4.16.4",
     "extract-text-webpack-plugin": "^2.1.2",
     "file-loader": "^2.0.0",
     "import-glob-loader": "^1.1.0",
@@ -43,6 +47,7 @@
     "vue-template-compiler": "^2.5.17",
     "webpack": "2.7.0",
     "webpack-cli": "^3.1.2",
+    "webpack-dev-middleware": "^3.4.0",
     "webpack-merge": "^4.1.4"
   },
   "dependencies": {

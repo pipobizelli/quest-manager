@@ -4,6 +4,8 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var CopyWebpackPlugin = require('copy-webpack-plugin')
 var SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
 // var CompressionPlugin = require('compression-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
+
 var smp = new SpeedMeasurePlugin()
 var neat = require('bourbon-neat').includePaths
 
@@ -30,17 +32,21 @@ let config = {
   },
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, 'dist/assets')
+    path: path.resolve(__dirname, 'dist')
   },
   module: { rules: [] },
   plugins: [],
   node: { fs: 'empty' }
 }
 
+config.plugins.push(
+  new CleanWebpackPlugin(['dist'])
+)
+
 // Plugins
 config.plugins.push(
   new CopyWebpackPlugin([
-    { from: './src/layout', to: '../', debug: 'info' }
+    { from: './src/layout', to: './', debug: 'info' }
   ])
 )
 
@@ -74,7 +80,7 @@ config.module.rules.push({
     {
       loader: 'file-loader',
       options: {
-        publicPath: '//localhost/quest-manager/dist/assets/'
+        publicPath: './'
       }
     }
   ]

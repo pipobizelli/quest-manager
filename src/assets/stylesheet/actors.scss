@@ -2,6 +2,9 @@
   height: 100%;
   width: 100%;
 }
+
+.actor { transition: all .2s; }
+
 // One Tile Actors =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 .barbarian { @include oneTileActor('barbarian') }
 .elf { @include oneTileActor('elf') }

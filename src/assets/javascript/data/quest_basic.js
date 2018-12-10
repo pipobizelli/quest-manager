@@ -8,8 +8,8 @@ const quest = {
       draggable: false,
       attributes: {
         open: false,
-        rotation: 90,
-        tiles: ['2:11'],
+        rotation: 180,
+        tiles: ['5:11'],
         life: false,
         attack: 0,
         defense: 0,
@@ -19,6 +19,9 @@ const quest = {
   },
   map: {
     doors: [{
+      tiles: ['2:0', '2:1'],
+      rotation: 90
+    }, {
       tiles: ['2:4', '2:5'],
       rotation: 90
     }, {
@@ -33,7 +36,7 @@ const quest = {
       draggable: true,
       attributes: {
         rotation: 0,
-        tiles: ['2:2'],
+        tiles: ['0:14'],
         life: 8,
         attack: 3,
         defense: 2,
