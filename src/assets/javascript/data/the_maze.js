@@ -1,15 +1,12 @@
-const quest = {
-  current_turn: 0,
-  active_actor: '',
-  objective: {
-    chest: {
+export default {
+  objectives: {
+    stairway: {
       type: 'objective',
-      label: 'chest',
+      label: 'stairway',
       draggable: false,
       attributes: {
-        open: false,
-        rotation: 180,
-        tiles: ['5:11'],
+        rotation: 0,
+        tiles: ['8:12', '8:13', '9:12', '9:13'],
         life: false,
         attack: 0,
         defense: 0,
@@ -36,16 +33,42 @@ const quest = {
       draggable: true,
       attributes: {
         rotation: 0,
-        tiles: ['0:14'],
+        tiles: ['0:0'],
         life: 8,
         attack: 3,
         defense: 2,
         move: 8
       }
     },
+    dwarf: {
+      type: 'hero',
+      label: 'dwarf',
+      draggable: true,
+      attributes: {
+        rotation: 0,
+        tiles: ['0:25'],
+        life: 8,
+        attack: 3,
+        defense: 2,
+        move: 10
+      }
+    },
     elf: {
       type: 'hero',
       label: 'elf',
+      draggable: true,
+      attributes: {
+        rotation: 0,
+        tiles: ['18:25'],
+        life: 6,
+        attack: 2,
+        defense: 2,
+        move: 10
+      }
+    },
+    wizard: {
+      type: 'hero',
+      label: 'wizard',
       draggable: true,
       attributes: {
         rotation: 0,
@@ -58,5 +81,3 @@ const quest = {
     }
   }
 }
-
-export default quest

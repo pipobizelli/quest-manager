@@ -1,23 +1,23 @@
 import Vue from 'vue'
-import { Store } from './store'
+// import { Store } from './store'
 // components -----------------------------------
 import Board from './components/board.vue'
-import Config from './components/config.vue'
+// import Config from './components/config.vue'
 // modules --------------------------------------
-import Quest from './modules/quest'
-import BoardModule from './modules/board'
+// import Quest from './modules/quest'
+// import BoardModule from './modules/board'
 
-window.Store = Store
+// window.Store = Store
 
 var VueConfiguration = {
   el: '#PageContainer',
   components: {
-    Board,
-    Config
+    Board
+    // Config
   },
   beforeCreate () {
-    Quest().registerModule(Store)
-    BoardModule().registerModule(Store)
+    // Quest().registerModule(Store)
+    // BoardModule().registerModule(Store)
   }
 }
 

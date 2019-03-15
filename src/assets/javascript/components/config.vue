@@ -8,8 +8,13 @@
       <input type="checkbox" id="show_tile_numbers" name="show_tile_numbers" @click="toggle_numbers">
       Show Tile Numbers
     </label>
+
+    <label>
+      <input type="checkbox" id="show_tile_numbers" name="show_tile_numbers" v-model="autoPlay">
+      Auto Play
+    </label>
     <!-- <button type="button" name="load" @click="load_quest">Load Demo Quest</button> -->
-    <button type="button" name="play" @click="play">PLAY!</button>
+    <button v-show="autoPlay" type="button" name="play" @click="play">PLAY!</button>
     <!-- <label for="tile_config">Tiles Config:</label>
     <textarea disabled name="tile_config" id="tile_config" rows="10" cols="120"></textarea> -->
   </section>
@@ -18,8 +23,13 @@
 <script>
 import { EventHub } from '../event_hub'
 import { Store } from '../store'
-import Quest from '../data/quest_basic'
+import Quest from '../data/the_maze'
 export default {
+  data () {
+    return {
+      autoPlay: false
+    }
+  },
   computed: {
     path_config () {
       return Store.state.Board.path_config
@@ -36,6 +46,9 @@ export default {
     toggle_numbers () {
       EventHub.$emit('Config/toggleTileNumbers')
       Store.dispatch('Board/toggle_numbers')
+    },
+    toggle_auto_play () {
+      EventHub.$emit('Config/toggleAutoPlay')
     },
     load_quest () {
       Store.dispatch('Quest/set_objective', Quest.objective)

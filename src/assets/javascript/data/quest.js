@@ -1,12 +1,16 @@
 const quest = {
   current_turn: 0,
   active_actor: '',
+  objective: {},
   map: {
     doors: [{
       tiles: ['2:4', '2:5'],
       rotation: 0
     }, {
       tiles: ['3:7', '4:7'],
+      rotation: 90
+    }, {
+      tiles: ['5:4', '5:5'],
       rotation: 90
     }],
     blocks: [{

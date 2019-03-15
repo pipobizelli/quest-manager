@@ -1,4 +1,4 @@
-import $ from 'jquery'
+// import $ from 'jquery'
 import Tile from './tile'
 export default (map) => {
   var getPossibilities = (tile) => {
@@ -78,6 +78,11 @@ export default (map) => {
     // G = 10
     // H = getShortPath(start, end) * 10
     // var path = [start]
+
+    if (start === end) {
+      return []
+    }
+
     var open = []
     var possibles = getPossibilities(start).filter((p) => {
       return p !== start && path.indexOf(p) < 0

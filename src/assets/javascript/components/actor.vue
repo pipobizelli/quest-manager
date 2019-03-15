@@ -3,6 +3,7 @@
     'draggable': isDraggable(type)
     }, `${handle}--${rotation}`,
      handle, 'actor']"
+    :data-actor="handle"
     :data-tiles="tiles"
     :data-x="position.x"
     :data-y="position.y"
@@ -10,16 +11,24 @@
 </template>
 
 <script>
-import { EventHub } from '../event_hub'
+import Tile from '../helpers/tile'
 export default {
   data () {
     return {
-      styles: {
+      position: {
+        x: 0,
+        y: 0
+      }
+    }
+  },
+  computed: {
+    styles () {
+      return {
         transform: `translate(${this.position.x}px, ${this.position.y}px) rotate(${this.rotation}deg)`
       }
     }
   },
-  props: ['handle', 'type', 'rotation', 'position', 'tiles'],
+  props: ['handle', 'type', 'rotation', 'tiles', 'board'],
   methods: {
     isDraggable (type) {
       return type === 'hero' || type === 'monster'
@@ -29,15 +38,14 @@ export default {
       this.position.y = data.y
       // this.rotation = data.rotation
       this.styles.transform = `translate(${this.position.x}px, ${this.position.y}px)`
+    },
+    get_pos () {
+      this.position = Tile(this.board).getTileOffset(this.tiles[0])
     }
   },
-  created () {
-    EventHub.$on('Actor/move', (data) => {
-      if (data.handle === this.handle) {
-        setTimeout(() => {
-          this.move_actor(data)
-        }, 200 * data.i)
-      }
+  mounted () {
+    window.addEventListener('load', (event) => {
+      this.get_pos()
     })
   }
 }

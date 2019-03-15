@@ -18,30 +18,66 @@
           v-model="board.config[(board.tiles.columns * l) + c]" maxlength="10"> -->
         </div>
       </template>
-      <article class="actors" ref="container"></article>
+      <article class="actors" ref="container">
+        <template v-for="block in quest.map.blocks">
+          <actor
+            :board="board"
+            :tiles="block.tiles"
+            :handle="block.tiles.length > 1 ? 'doubleblock' : 'block'"
+            type="block"
+            :rotation="0">
+          </actor>
+        </template>
+        <template v-for="door in quest.map.doors">
+          <actor
+            :board="board"
+            :tiles="door.tiles"
+            handle="door"
+            type="door"
+            :rotation="get_rot(door)">
+          </actor>
+        </template>
+        <template v-for="objective in Object.values(quest.objectives)">
+          <actor
+            :board="board"
+            :tiles="objective.attributes.tiles"
+            :handle="objective.label"
+            :type="objective.type"
+            :rotation="objective.attributes.rotation">
+          </actor>
+        </template>
+        <template v-for="comp in Object.values(quest.components)">
+          <actor
+            :board="board"
+            :tiles="comp.attributes.tiles"
+            :handle="comp.label"
+            :type="comp.type"
+            :rotation="comp.attributes.rotation">
+          </actor>
+        </template>
+      </article>
     </section>
     <img src="../../images/board.jpg" alt="board">
   </article>
 </template>
 
 <script>
-import $ from 'jquery'
-import Vue from 'vue'
 import interact from 'interactjs'
-import { EventHub } from '../event_hub'
-import { Store } from '../store'
 import HeroquestBoard from '../data/heroquest.json'
 import Actor from '../components/actor.vue'
 import Tile from '../helpers/tile'
-import Pathfinder from '../helpers/pathfinder'
+
+// TEMP
+import Quest from '../data/the_maze'
 
 export default {
   data () {
     return {
+      quest: Quest,
       gridWidth: 0,
       gridHeight: 0,
-      showPathConfig: Store.state.Board.path_config,
-      showNum: Store.state.Board.show_numbers,
+      showPathConfig: false,
+      showNum: false,
       board: {
         tiles: {
           lines: HeroquestBoard.lines,
@@ -54,11 +90,7 @@ export default {
   watch: {
     'board.config' (val, oldVal) {
       this.set_board_config(val)
-      EventHub.$emit('Board/changeConfig', val)
     }
-  },
-  computed: {
-    quest () { return Store.state.Quest }
   },
   components: {
     Actor
@@ -67,24 +99,16 @@ export default {
     set_board_config (val) {
       this.board.config = val
     },
-    set_door (tiles) {
-      var t1 = tiles[0]
-      var t2 = tiles[1]
+    get_rot (actor) {
+      var t1 = actor.tiles[0]
+      var t2 = actor.tiles[1]
       var rot = 0
-
-      this.board.config[t1].hasDoor = true
-      this.board.config[t2].hasDoor = true
 
       if (Tile(this.board).isTileInColumn(t1, t2)) {
         rot = 90
       }
 
-      this.set_actor({
-        handle: 'door',
-        type: 'door',
-        rotation: rot,
-        position: Tile(this.board).getTileOffset(t1)
-      })
+      return rot
     },
     open_door (t1) {
       this.board.config[t1].hasDoor = false
@@ -145,174 +169,64 @@ export default {
           this.change_tile_config(`${tileRight.l}:${tileRight.c}`, 3, '1')
         }
       }
-
-      this.set_actor({
-        handle: tiles.length > 1 ? 'doubleblock' : 'block',
-        type: 'block',
-        rotation: 0,
-        position: Tile(this.board).getTileOffset(tiles[0])
-      })
-    },
-    set_actor (actor) {
-      var ComponentClass = Vue.extend(Actor)
-      var instance = new ComponentClass({
-        propsData: {
-          tiles: actor.tiles,
-          handle: actor.handle,
-          type: actor.type,
-          rotation: actor.rotation,
-          position: actor.position
-        }
-      })
-      instance.$mount()
-      this.$refs.container.appendChild(instance.$el)
     },
     set_target_position (payload) {
-      var target = payload.target
-      var x = $(`[data-tile='${payload.r}:${payload.c}']`)[0].offsetLeft
-      var y = $(`[data-tile='${payload.r}:${payload.c}']`)[0].offsetTop
+      let target = payload.target
+      let tile = document.querySelectorAll(`[data-tile='${payload.r}:${payload.c}']`)[0]
+      let x = tile.offsetLeft
+      let y = tile.offsetTop
+      target.setAttribute('data-x', x)
+      target.setAttribute('data-y', y)
       target.style.webkitTransform = target.style.transform = `translate(${x}px, ${y}px)`
-    },
-    set_quest (quest) {
-      let blocks = quest.map.blocks
-      for (var b in blocks) {
-        this.set_blocks(blocks[b].tiles)
-      }
-
-      let doors = quest.map.doors
-      for (var d in doors) {
-        this.set_door(doors[d].tiles)
-      }
-
-      let objectives = Object.values(quest.objective)
-      for (var o in objectives) {
-        this.set_actor({
-          handle: objectives[o].label,
-          type: objectives[o].type,
-          rotation: objectives[o].attributes.rotation,
-          position: Tile(this.board).getTileOffset(objectives[o].attributes.tiles[0]),
-          tiles: objectives[o].attributes.tiles
-        })
-      }
-
-      let comps = Object.values(quest.components)
-      for (var c in comps) {
-        this.set_actor({
-          handle: comps[c].label,
-          type: comps[c].type,
-          rotation: comps[c].attributes.rotation,
-          position: Tile(this.board).getTileOffset(comps[c].attributes.tiles[0]),
-          tiles: comps[c].attributes.tiles
-        })
-      }
     },
     get_tile_config (tile) {
       return this.board.config[tile].config
     },
     change_tile_config (tile, index, state) {
-      var tileConfig = this.get_tile_config(tile).split('') // Tile(this.board).getTileConfig(tile).split('')
+      var tileConfig = this.get_tile_config(tile).split('')
       tileConfig[index] = state
       this.board.config[tile].config = tileConfig.join('')
     },
-    exec_next_turn () {
-      // var action = 0
-      var active = this.quest.active_actor
-      var actorObject = this.quest.components[active]
-      var start = actorObject.attributes.tiles[0]
-      var objective = Object.values(this.quest.objective)[0]
-      var objectiveTile = objective.attributes.tiles[0]
-      var pathArr = Pathfinder(this.board).getAllPaths(start)
-
-      // var path = Pathfinder(this.board).getPath(start, objectiveTile, [start])
-      var end = start
-
-      console.log('is objective in sight?')
-      if (pathArr.indexOf(objectiveTile) >= 0) {
-        console.log('yeah!')
-        end = objectiveTile
-      } else {
-        console.log('no...')
-        // is any door?
-        console.log('is any door?')
-        for (var t in pathArr) {
-          var tile = pathArr[t]
-          if (this.board.config[tile].hasDoor) {
-            console.log('yeah!')
-            end = tile
-            break
-          }
-        }
-      }
-
-      var path = Pathfinder(this.board).getPath(start, end, [start])
-      for (var p in path) {
-        EventHub.$emit('Actor/move', {
-          handle: active,
-          x: Tile(this.board).getTileOffset(path[p]).x,
-          y: Tile(this.board).getTileOffset(path[p]).y,
-          i: p
-        })
-      }
-
-      // TODO ====>
-      // is enemy in sight?
-        // is possible attack an enemy?
-      // is any door?
-        // which door is closest to the objective tile?
-        // get the short path to this door
-    },
     handler (e, tile) {
-      // Pathfinder(this.board).getAllPaths(tile)
-      // console.log(tile)
       this.open_door(tile)
       e.preventDefault()
     }
   },
-  created () {
-    EventHub.$on('Config/togglePathConfig', () => {
-      this.showPathConfig = !this.showPathConfig
-    })
-    EventHub.$on('Config/toggleTileNumbers', () => {
-      this.showNum = !this.showNum
-    })
-    EventHub.$on('Config/questLoaded', () => {
-      this.set_quest(Store.state.Quest)
-    })
-    EventHub.$on('Config/play', () => {
-      // console.log(Store.state.Quest.active_actor)
-      this.exec_next_turn()
-    })
-    window.Tile = Tile(this.board)
-    window.Pathfinder = Pathfinder(this.board)
-    window.EventHub = EventHub
-  },
   mounted () {
+    let self = this
     this.$nextTick(function () {
+      // set blocks passage
+      let blocks = this.quest.map.blocks
+      for (var b in blocks) {
+        this.set_blocks(blocks[b].tiles)
+      }
+
       interact('.draggable').draggable({
         inertia: false,
-        restrict: {
-          restriction: 'parent',
-          endOnly: false
-          // elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-        },
         autoScroll: false
       }).on('dragmove', (event) => {
         let target = event.target
-        let x = parseFloat(target.getAttribute('data-x')) + event.dx
-        let y = parseFloat(target.getAttribute('data-y')) + event.dy
-
-        target.style.transform = `translate(${x}px, ${y}px)`
-
+        let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+        let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+        target.style.webkitTransform = target.style.transform = `translate(${x}px, ${y}px)`
         target.setAttribute('data-x', x)
         target.setAttribute('data-y', y)
       }).on('dragend', (event) => {
-        var tile = $('.tile').first()
-        var gridWidth = Math.round(tile.width())
-        var gridHeight = Math.round(tile.height())
-        var dataX = Math.round(event.target.getAttribute('data-x'))
-        var dataY = Math.round(event.target.getAttribute('data-y'))
-        var c = Math.round(dataX / gridWidth)
-        var r = Math.round(dataY / gridHeight)
+        let tile = document.getElementsByClassName('tile')[0]
+        let gridWidth = Math.round(tile.offsetWidth)
+        let gridHeight = Math.round(tile.offsetHeight)
+        let dataX = Math.round(event.target.getAttribute('data-x'))
+        let dataY = Math.round(event.target.getAttribute('data-y'))
+        let maxC = self.board.tiles.columns - 1
+        let maxR = self.board.tiles.lines - 1
+        let c = Math.round(dataX / gridWidth) > 0
+          ? Math.round(dataX / gridWidth) > maxC ? maxC : Math.round(dataX / gridWidth)
+          : 0
+        let r = Math.round(dataY / gridHeight) > 0
+          ? Math.round(dataY / gridHeight) > maxR ? maxR : Math.round(dataY / gridHeight)
+          : 0
+
+        console.log(c, r)
 
         this.set_target_position({
           r,
